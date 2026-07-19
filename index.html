@@ -1,0 +1,415 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Small Steps. Mighty Standards.</title>
+  <style>
+    :root{
+      --ink:#172033;
+      --muted:#667085;
+      --paper:#f7f4ee;
+      --card:#ffffff;
+      --line:#ddd8cf;
+      --accent:#e4572e;
+      --accent2:#2f6f6d;
+      --good:#267a52;
+      --warn:#ad6500;
+      --bad:#a33a3a;
+      --shadow:0 18px 45px rgba(24,32,51,.12);
+    }
+    *{box-sizing:border-box}
+    body{
+      margin:0;
+      font-family:Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      color:var(--ink);
+      background:
+        radial-gradient(circle at top left, rgba(228,87,46,.10), transparent 34rem),
+        radial-gradient(circle at bottom right, rgba(47,111,109,.10), transparent 34rem),
+        var(--paper);
+      min-height:100vh;
+    }
+    button{font:inherit}
+    .shell{width:min(100%,960px);margin:auto;padding:28px 18px 48px}
+    .topline{
+      display:flex;justify-content:space-between;gap:16px;align-items:center;
+      margin-bottom:18px;color:var(--muted);font-size:.92rem
+    }
+    .brand{font-weight:800;letter-spacing:.04em;text-transform:uppercase;color:var(--accent)}
+    .game-card{
+      background:rgba(255,255,255,.93);
+      border:1px solid rgba(221,216,207,.9);
+      border-radius:26px;
+      box-shadow:var(--shadow);
+      overflow:hidden;
+    }
+    .hero{padding:42px 42px 30px;border-bottom:1px solid var(--line)}
+    .eyebrow{font-weight:800;color:var(--accent2);text-transform:uppercase;letter-spacing:.08em;font-size:.8rem}
+    h1{font-size:clamp(2rem,5vw,4.2rem);line-height:.96;margin:12px 0 18px;max-width:760px}
+    .subtitle{font-size:1.14rem;line-height:1.55;color:var(--muted);max-width:720px}
+    .hero-actions{display:flex;gap:12px;flex-wrap:wrap;margin-top:26px}
+    .btn{
+      border:0;border-radius:999px;padding:13px 20px;font-weight:800;cursor:pointer;
+      transition:.2s transform,.2s opacity,.2s background;
+    }
+    .btn:hover{transform:translateY(-1px)}
+    .btn-primary{background:var(--accent);color:white}
+    .btn-secondary{background:#eef1f0;color:var(--ink)}
+    .panel{padding:30px 42px 40px}
+    .hidden{display:none!important}
+    .hud{display:grid;grid-template-columns:1fr auto auto;gap:16px;align-items:center;margin-bottom:28px}
+    .progress-wrap{min-width:0}
+    .progress-label{display:flex;justify-content:space-between;color:var(--muted);font-size:.86rem;margin-bottom:7px}
+    .track{height:10px;border-radius:999px;background:#ece8df;overflow:hidden}
+    .bar{height:100%;width:0;background:linear-gradient(90deg,var(--accent),#f39b54);transition:width .35s}
+    .stat{
+      background:#f5f3ee;border:1px solid var(--line);border-radius:16px;padding:10px 14px;
+      text-align:center;min-width:108px
+    }
+    .stat strong{display:block;font-size:1.2rem}
+    .stat span{font-size:.78rem;color:var(--muted)}
+    .scenario-tag{
+      display:inline-flex;align-items:center;gap:8px;padding:7px 11px;border-radius:999px;
+      background:#edf5f3;color:var(--accent2);font-weight:800;font-size:.8rem
+    }
+    h2{font-size:clamp(1.45rem,3vw,2.15rem);line-height:1.15;margin:16px 0 12px}
+    .situation{font-size:1.05rem;line-height:1.6;color:#344054;margin-bottom:22px}
+    .timer-note{font-size:.9rem;color:var(--muted);margin-bottom:16px}
+    .options{display:grid;gap:12px}
+    .option{
+      width:100%;text-align:left;background:white;border:1px solid var(--line);border-radius:18px;
+      padding:17px 18px;cursor:pointer;line-height:1.4;font-weight:700;color:var(--ink);
+      transition:.16s border,.16s transform,.16s background;
+    }
+    .option:hover{border-color:var(--accent);transform:translateY(-1px);background:#fffaf7}
+    .option:disabled{cursor:default;transform:none}
+    .option.selected-good{border-color:var(--good);background:#edf8f1}
+    .option.selected-mid{border-color:var(--warn);background:#fff7e8}
+    .option.selected-bad{border-color:var(--bad);background:#fff0f0}
+    .feedback{
+      margin-top:22px;border-radius:20px;padding:20px 22px;border-left:6px solid var(--accent2);
+      background:#f7f9f8
+    }
+    .feedback h3{margin:0 0 7px;font-size:1.08rem}
+    .feedback p{margin:0;color:#475467;line-height:1.55}
+    .next-row{margin-top:18px;display:flex;justify-content:flex-end}
+    .result-grid{display:grid;grid-template-columns:.85fr 1.15fr;gap:28px;align-items:start}
+    .score-ring{
+      width:200px;aspect-ratio:1;border-radius:50%;display:grid;place-items:center;margin:auto;
+      background:conic-gradient(var(--accent) calc(var(--score) * 1%),#ece8df 0);
+      position:relative
+    }
+    .score-ring:after{content:"";position:absolute;inset:18px;background:white;border-radius:50%}
+    .score-inner{position:relative;z-index:1;text-align:center}
+    .score-inner strong{display:block;font-size:2.7rem}
+    .score-inner span{color:var(--muted);font-size:.85rem}
+    .profile{
+      border:1px solid var(--line);border-radius:22px;padding:24px;background:#fff
+    }
+    .profile h2{margin-top:4px}
+    .profile-name{color:var(--accent);font-weight:900}
+    .profile p{line-height:1.6;color:#475467}
+    .takeaway{
+      margin-top:18px;background:#f7f4ee;border-radius:16px;padding:16px 18px;font-weight:700;line-height:1.5
+    }
+    .footer-note{text-align:center;color:var(--muted);font-size:.82rem;margin-top:18px}
+    @media(max-width:700px){
+      .hero,.panel{padding-left:22px;padding-right:22px}
+      .hud{grid-template-columns:1fr 1fr}
+      .progress-wrap{grid-column:1/-1}
+      .result-grid{grid-template-columns:1fr}
+      .score-ring{width:170px}
+      h1{font-size:2.7rem}
+    }
+  </style>
+</head>
+<body>
+  <main class="shell">
+    <div class="topline">
+      <div class="brand">Tiny Games, Huge Wins.</div>
+      <div>Game 3 of 5</div>
+    </div>
+
+    <section class="game-card">
+      <div id="intro">
+        <div class="hero">
+          <div class="eyebrow">Small Steps. Mighty Standards.</div>
+          <h1>The SOP is somewhere in the binder. The crisis is happening now.</h1>
+          <p class="subtitle">
+            Make five fast workplace decisions. Protect the standard, avoid unnecessary drama,
+            and discover your <strong>Standards Under Pressure</strong> profile.
+          </p>
+          <div class="hero-actions">
+            <button class="btn btn-primary" id="startBtn" type="button">Start the shift</button>
+            <button class="btn btn-secondary" id="howBtn" type="button">How it works</button>
+          </div>
+          <div id="howText" class="feedback hidden" aria-live="polite">
+            <h3>How it works</h3>
+            <p>Choose the best next action in each scenario. Strong decisions earn Standards Points and build your Consistency Streak. Feedback explains not just what to do, but why.</p>
+          </div>
+        </div>
+      </div>
+
+      <div id="game" class="panel hidden">
+        <div class="hud">
+          <div class="progress-wrap">
+            <div class="progress-label">
+              <span id="progressText">Scenario 1 of 5</span>
+              <span id="percentText">0%</span>
+            </div>
+            <div class="track"><div class="bar" id="progressBar"></div></div>
+          </div>
+          <div class="stat"><strong id="scoreText">0</strong><span>Standards Points</span></div>
+          <div class="stat"><strong id="streakText">0</strong><span>Consistency Streak</span></div>
+        </div>
+
+        <div id="scenarioArea">
+          <span class="scenario-tag" id="scenarioTag"></span>
+          <h2 id="scenarioTitle"></h2>
+          <p class="situation" id="scenarioText"></p>
+          <p class="timer-note">What is the best next move?</p>
+          <div class="options" id="options"></div>
+          <div class="feedback hidden" id="feedback" aria-live="polite">
+            <h3 id="feedbackTitle"></h3>
+            <p id="feedbackText"></p>
+          </div>
+          <div class="next-row">
+            <button class="btn btn-primary hidden" id="nextBtn" type="button">Next scenario</button>
+          </div>
+        </div>
+      </div>
+
+      <div id="results" class="panel hidden">
+        <div class="result-grid">
+          <div>
+            <div class="score-ring" id="scoreRing" style="--score:0">
+              <div class="score-inner">
+                <strong id="finalScore">0</strong>
+                <span>out of 500</span>
+              </div>
+            </div>
+          </div>
+          <div class="profile">
+            <div class="eyebrow">Your Standards Under Pressure profile</div>
+            <h2 class="profile-name" id="profileName"></h2>
+            <p id="profileDescription"></p>
+            <div class="takeaway" id="takeaway"></div>
+            <div class="hero-actions">
+              <button class="btn btn-primary" id="restartBtn" type="button">Play again</button>
+            </div>
+          </div>
+        </div>
+        <div class="footer-note">A Tiny Games, Huge Wins instructional prototype.</div>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    const scenarios = [
+      {
+        tag: "Opening Rush",
+        title: "The refrigerator is warmer than the SOP allows.",
+        text: "You are opening a café. The dairy refrigerator reads 47°F, but the acceptable limit is 41°F. A coworker says, “It was probably just left open. We’re already behind.”",
+        options: [
+          {text:"Move the dairy to a verified cold unit, document the reading, and notify the shift lead.", points:100, level:"good",
+           feedback:"Exactly. You protect the product first, preserve the evidence, and escalate through the right channel. Standards are most useful before the yogurt develops a legal team."},
+          {text:"Close the door, wait ten minutes, and use the dairy if the temperature drops.", points:55, level:"mid",
+           feedback:"A recheck may be useful, but not while potentially unsafe food remains in service. Contain the risk first; investigate second."},
+          {text:"Use the dairy quickly so it does not have time to get any warmer.", points:0, level:"bad",
+           feedback:"Speed does not reverse temperature abuse. This is how a shortcut becomes a report, a refund, and a meeting with three managers."}
+        ]
+      },
+      {
+        tag: "Busy Front Desk",
+        title: "A customer asks you to skip the identity check.",
+        text: "A regular customer needs access to a sensitive account. They forgot their ID and remind you that you have helped them many times before. A line is forming behind them.",
+        options: [
+          {text:"Explain the verification requirement and offer an approved alternative process.", points:100, level:"good",
+           feedback:"Strong call. You protect the customer and the organization while still helping them move forward. Familiarity is not authentication."},
+          {text:"Ask a coworker whether they recognize the customer, then proceed if they do.", points:45, level:"mid",
+           feedback:"Recognition feels reassuring, but it is not an approved control. Use an authorized alternative—not a hallway referendum."},
+          {text:"Make a one-time exception because the customer is known and the line is growing.", points:0, level:"bad",
+           feedback:"The phrase “one-time exception” has launched many recurring problems. Pressure changes the pace, not the standard."}
+        ]
+      },
+      {
+        tag: "Warehouse Handoff",
+        title: "The scanner is down and the shipment must leave.",
+        text: "The barcode scanner stops working during a high-volume shipment. A teammate suggests writing item numbers on scrap paper and entering them later.",
+        options: [
+          {text:"Pause the affected handoff and use the documented manual backup process.", points:100, level:"good",
+           feedback:"Yes. A backup process preserves traceability even when the preferred tool fails. The standard should survive the scanner’s emotional crisis."},
+          {text:"Use scrap paper, but photograph it so there is a record.", points:55, level:"mid",
+           feedback:"Better than no record, but still outside the approved process. Improvised documentation creates gaps, duplicates, and future detective work."},
+          {text:"Keep shipping and fix the records at the end of the day.", points:0, level:"bad",
+           feedback:"That trades a visible delay for invisible inventory chaos. A fast shipment with unreliable records is not actually fast."}
+        ]
+      },
+      {
+        tag: "New Employee",
+        title: "A trainee performs the task correctly—but skips a required check.",
+        text: "The final result looks perfect. The trainee says the check is unnecessary because they already know what the outcome will be.",
+        options: [
+          {text:"Have them repeat the task using the required check and explain what risk the check controls.", points:100, level:"good",
+           feedback:"Correct. You reinforce both the behavior and its purpose. Compliance without understanding is fragile; understanding without compliance is wishful thinking."},
+          {text:"Let it pass this time because the outcome was correct, then remind them later.", points:40, level:"mid",
+           feedback:"The outcome happened to be right, but the process was not reliable. Delayed coaching quietly teaches that required steps are optional."},
+          {text:"Praise the result and remove the check from their future workflow.", points:0, level:"bad",
+           feedback:"One good outcome is not evidence that a control is useless. That is how personal preference slowly eats the standard."}
+        ]
+      },
+      {
+        tag: "End-of-Shift Surprise",
+        title: "You find an error made three hours ago.",
+        text: "A required safety inspection was recorded as complete, but you discover it was never actually performed. No incident has occurred.",
+        options: [
+          {text:"Complete the inspection if it is still valid to do so, correct the record transparently, and report the lapse.", points:100, level:"good",
+           feedback:"Exactly. Fix what can be fixed, preserve an honest record, and escalate the control failure. No incident is good news—not permission to rewrite history."},
+          {text:"Perform the inspection now and leave the original completion time unchanged.", points:35, level:"mid",
+           feedback:"Completing the inspection helps, but inaccurate records hide the process failure. A clean-looking log can be dirtier than an honest correction."},
+          {text:"Do nothing because the shift is almost over and no one was harmed.", points:0, level:"bad",
+           feedback:"Near misses are free lessons only when someone captures them. Ignoring the lapse guarantees the organization learns nothing."}
+        ]
+      }
+    ];
+
+    let index = 0;
+    let score = 0;
+    let streak = 0;
+    let answered = false;
+
+    const intro = document.getElementById("intro");
+    const game = document.getElementById("game");
+    const results = document.getElementById("results");
+    const startBtn = document.getElementById("startBtn");
+    const howBtn = document.getElementById("howBtn");
+    const howText = document.getElementById("howText");
+    const nextBtn = document.getElementById("nextBtn");
+    const restartBtn = document.getElementById("restartBtn");
+
+    howBtn.addEventListener("click", () => howText.classList.toggle("hidden"));
+    startBtn.addEventListener("click", startGame);
+    nextBtn.addEventListener("click", nextScenario);
+    restartBtn.addEventListener("click", startGame);
+
+    function startGame(){
+      index = 0;
+      score = 0;
+      streak = 0;
+      answered = false;
+      intro.classList.add("hidden");
+      results.classList.add("hidden");
+      game.classList.remove("hidden");
+      renderScenario();
+    }
+
+    function renderScenario(){
+      answered = false;
+      const s = scenarios[index];
+      document.getElementById("scenarioTag").textContent = s.tag;
+      document.getElementById("scenarioTitle").textContent = s.title;
+      document.getElementById("scenarioText").textContent = s.text;
+      document.getElementById("scoreText").textContent = score;
+      document.getElementById("streakText").textContent = streak;
+
+      const pct = Math.round((index / scenarios.length) * 100);
+      document.getElementById("progressText").textContent = `Scenario ${index + 1} of ${scenarios.length}`;
+      document.getElementById("percentText").textContent = `${pct}%`;
+      document.getElementById("progressBar").style.width = `${pct}%`;
+
+      const options = document.getElementById("options");
+      options.innerHTML = "";
+      s.options.forEach((opt, i) => {
+        const btn = document.createElement("button");
+        btn.type = "button";
+        btn.className = "option";
+        btn.textContent = opt.text;
+        btn.addEventListener("click", () => selectOption(i, btn));
+        options.appendChild(btn);
+      });
+
+      document.getElementById("feedback").classList.add("hidden");
+      nextBtn.classList.add("hidden");
+      nextBtn.textContent = index === scenarios.length - 1 ? "See my profile" : "Next scenario";
+    }
+
+    function selectOption(optionIndex, button){
+      if(answered) return;
+      answered = true;
+
+      const chosen = scenarios[index].options[optionIndex];
+      score += chosen.points;
+      if(chosen.points === 100) streak += 1;
+      else streak = 0;
+
+      document.querySelectorAll(".option").forEach(btn => btn.disabled = true);
+      button.classList.add(`selected-${chosen.level}`);
+
+      const titles = {
+        good:"Standard protected.",
+        mid:"Reasonable instinct. Risky execution.",
+        bad:"Shortcut detected."
+      };
+      document.getElementById("feedbackTitle").textContent = titles[chosen.level];
+      document.getElementById("feedbackText").textContent = chosen.feedback;
+      document.getElementById("feedback").classList.remove("hidden");
+      document.getElementById("scoreText").textContent = score;
+      document.getElementById("streakText").textContent = streak;
+      nextBtn.classList.remove("hidden");
+    }
+
+    function nextScenario(){
+      index += 1;
+      if(index < scenarios.length){
+        renderScenario();
+      } else {
+        showResults();
+      }
+    }
+
+    function showResults(){
+      game.classList.add("hidden");
+      results.classList.remove("hidden");
+      document.getElementById("finalScore").textContent = score;
+      document.getElementById("scoreRing").style.setProperty("--score", score / 5);
+
+      let profile;
+      if(score >= 450){
+        profile = {
+          name:"Calm Keeper of the Standard",
+          description:"You protect the process without becoming a walking policy manual. You contain risk, use approved alternatives, document honestly, and explain the reason behind the rule.",
+          takeaway:"Your superpower: making the safe, compliant choice feel practical rather than bureaucratic."
+        };
+      } else if(score >= 340){
+        profile = {
+          name:"Reliable Rule Navigator",
+          description:"You usually choose the right destination, though urgency occasionally tempts you onto an unofficial shortcut. Your judgment is strong; your next step is making containment and documentation automatic.",
+          takeaway:"Growth move: when pressure rises, ask, “What must I protect before I solve the inconvenience?”"
+        };
+      } else if(score >= 220){
+        profile = {
+          name:"Well-Meaning Improviser",
+          description:"You care about getting the job done and often invent a workable-looking solution. The danger is that your workaround may remove the very control the procedure was designed to provide.",
+          takeaway:"Growth move: use the approved backup process before designing one on the back of a receipt."
+        };
+      } else if(score >= 100){
+        profile = {
+          name:"Shortcut Enthusiast",
+          description:"You are fast, confident, and occasionally one decision away from starring in a compliance case study. You tend to optimize for the immediate task instead of the risk the standard controls.",
+          takeaway:"Growth move: slow down long enough to identify what could become costly, unsafe, or impossible to trace."
+        };
+      } else {
+        profile = {
+          name:"Chaos Gremlin",
+          description:"You do not merely bend procedures; you give them exciting new shapes. The good news is that your instincts are highly coachable once you connect each required step to the risk it prevents.",
+          takeaway:"Growth move: before acting, ask, “What future disaster was this step invented to stop?”"
+        };
+      }
+
+      document.getElementById("profileName").textContent = profile.name;
+      document.getElementById("profileDescription").textContent = profile.description;
+      document.getElementById("takeaway").textContent = profile.takeaway;
+    }
+  </script>
+</body>
+</html>
